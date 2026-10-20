@@ -551,7 +551,7 @@
         };
 
         const sb = window.supabase.createClient("https://zlpjhuczfobokkdqilar.supabase.co", "sb_publishable_WtHVMQhcfGjuY0ltMPzGGA_rvmF2Cz1");
-        const traduzErro = (m) => /Invalid login/i.test(m) ? 'E-mail ou senha incorretos.' : /already registered/i.test(m) ? 'Este e-mail já está em uso.' : /not confirmed/i.test(m) ? 'Confirme seu e-mail antes de entrar.' : /Password/i.test(m) ? 'Senha inválida (mínimo 6 caracteres).' : m;
+        const traduzErro = (m) => /Invalid login/i.test(m) ? 'E-mail ou senha incorretos.' : /already registered/i.test(m) ? 'Este e-mail já está em uso.' : /not confirmed/i.test(m) ? 'Confirme seu e-mail antes de entrar.' : /weak|easy to guess/i.test(m) ? 'Essa senha é muito comum e fácil de adivinhar. Escolha outra senha.' : /at least/i.test(m) ? 'A senha precisa ter no mínimo 6 caracteres.' : m;
 
         window.onload = async () => {
             const { data } = await sb.auth.getSession();

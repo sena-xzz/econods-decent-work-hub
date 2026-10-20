@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EconODS - ODS 8</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#0b131a',
+                        cardBg: '#1f3324',
+                        brandGreen: '#78c658',
+                        brandGreenHover: '#65a84a',
+                        textMuted: '#9ca3af'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0b131a; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-x: hidden; }
+        .hidden-screen { display: none !important; }
+        .input-icon { position: absolute; left: 1.25rem; top: 50%; transform: translateY(-50%); color: #78c658; }
+        .custom-input { background-color: rgba(0, 0, 0, 0.2); border: 2px solid #78c658; padding-left: 3rem; padding-right: 1rem; }
+        .custom-input:focus { outline: none; box-shadow: 0 0 0 2px rgba(120, 198, 88, 0.5); }
+        
+        /* Loading spinner */
+        .loader {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 3px solid #0b131a;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: none;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        
+        /* Gráficos CSS Customizados */
+        .chart-container { display: flex; align-items: flex-end; justify-content: space-between; height: 200px; padding-bottom: 25px; border-bottom: 1px solid #374151; margin-top: 1.5rem; }
+        .chart-bar { width: 7%; background: linear-gradient(to top, #1f3324, #78c658); border-radius: 4px 4px 0 0; position: relative; transition: height 0.8s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
+        .chart-bar:hover { filter: brightness(1.3); }
+        .chart-label-x { position: absolute; bottom: -22px; left: 50%; transform: translateX(-50%); font-size: 0.75rem; color: #9ca3af; }
+        .chart-tooltip { position: absolute; top: -35px; left: 50%; transform: translateX(-50%); background-color: #0b131a; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; color: white; opacity: 0; transition: all 0.2s; white-space: nowrap; border: 1px solid #78c658; pointer-events: none; z-index: 10; font-weight: bold; }
+        .chart-bar:hover .chart-tooltip { opacity: 1; top: -40px; }
+        
+        /* Scrollbar Customizada */
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #0b131a; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1f3324; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #3a6344; }
+
+        /* Abas */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center relative">
+
+    <div id="toast-notification" class="fixed top-5 right-5 px-6 py-3 rounded shadow-lg z-50 transition-opacity duration-300 opacity-0 pointer-events-none font-semibold">
+        <!-- Mensagem aparecerá aqui -->
+    </div>
+
+    <!-- TELA DE LOGIN -->
+    <div id="login-screen" class="w-full max-w-md p-6 flex flex-col items-center">
+        <!-- Logo Vetorial -->
+        <div class="mb-8 flex flex-col items-center">
+            <div class="w-32 h-32 mb-3 rounded-3xl shadow-[0_0_20px_rgba(120,198,88,0.2)] border border-gray-700 bg-cardBg flex justify-center items-center p-3">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="w-full h-full drop-shadow-md">
+                    <rect x="20" y="60" width="14" height="20" rx="3" fill="#3a6344" />
+                    <rect x="43" y="45" width="14" height="35" rx="3" fill="#528a54" />
+                    <path d="M 66 80 L 66 35 L 54 35 L 73 12 L 92 35 L 80 35 L 80 80 Z" fill="#78c658" />
+                    <path d="M 18 45 C 18 20 42 20 42 20 C 42 20 42 45 18 45 Z" fill="#78c658" opacity="0.9"/>
+                </svg>
+            </div>
+            <h1 class="text-4xl font-bold tracking-wider relative mt-2 text-white">
+                Econ<span class="text-brandGreen">ODS</span>
+                <div class="absolute -top-3 right-0 w-[4.5rem] flex justify-between">
+                    <span class="w-2 h-2 rounded-full bg-[#184a75]"></span>
+                    <span class="w-2 h-2 rounded-full bg-[#e6352b]"></span>
+                    <span class="w-2 h-2 rounded-full bg-[#fbb021]"></span>
+                    <span class="w-2 h-2 rounded-full bg-[#429a46]"></span>
+                </div>
+            </h1>
+        </div>
+
+        <div class="bg-cardBg w-full p-8 rounded-3xl shadow-2xl border border-gray-700">
+            <form id="login-form" onsubmit="window.handleLogin(event)">
+                <div class="mb-5 relative">
+                    <i class="fa-regular fa-envelope input-icon"></i>
+                    <input type="email" id="login-email" required placeholder="Endereço Email" 
+                           class="w-full custom-input text-white rounded-full py-3 transition-all">
+                </div>
+                <div class="mb-8 relative">
+                    <i class="fa-solid fa-lock input-icon"></i>
+                    <input type="password" id="login-password" required placeholder="Senha" 
+                           class="w-full custom-input text-white rounded-full py-3 transition-all">
+                </div>
+                
+                <button type="submit" id="btn-login" class="w-full bg-brandGreen hover:bg-brandGreenHover text-black font-bold text-lg rounded-full py-3 transition-colors shadow-[0_4px_14px_0_rgba(120,198,88,0.39)] flex justify-center items-center gap-2">
+                    <span>ENTRAR</span>
+                    <div class="loader" id="loader-login"></div>
+                </button>
+            </form>
+        </div>
+
+        <p class="mt-6 text-sm text-gray-300">
+            Não tem conta? <a href="#" onclick="window.switchScreen('register-screen')" class="text-brandGreen font-bold hover:underline">Criar Conta</a>
+        </p>
+    </div>
+
+    <!-- TELA DE REGISTRO -->
+    <div id="register-screen" class="w-full max-w-md p-6 flex flex-col items-center hidden-screen">
+        <div class="mb-8 flex flex-col items-center">
+            <h1 class="text-3xl font-bold tracking-wider">Criar <span class="text-brandGreen">Conta</span></h1>
+            <p class="text-gray-400 text-sm mt-2">Junte-se ao EconODS</p>
+        </div>
+
+        <div class="bg-cardBg w-full p-8 rounded-3xl shadow-2xl border border-gray-700">
+            <form id="register-form" onsubmit="window.handleRegister(event)">
+                <div class="mb-5 relative">
+                    <i class="fa-regular fa-envelope input-icon"></i>
+                    <input type="email" id="register-email" required placeholder="Seu melhor Email" 
+                           class="w-full custom-input text-white rounded-full py-3 transition-all">
+                </div>
+                <div class="mb-8 relative">
+                    <i class="fa-solid fa-lock input-icon"></i>
+                    <input type="password" id="register-password" required placeholder="Crie uma Senha (mín 6 carac.)" 
+                           minlength="6" class="w-full custom-input text-white rounded-full py-3 transition-all">
+                </div>
+                
+                <button type="submit" id="btn-register" class="w-full bg-brandGreen hover:bg-brandGreenHover text-black font-bold text-lg rounded-full py-3 transition-colors flex justify-center items-center gap-2">
+                    <span>CADASTRAR</span>
+                    <div class="loader" id="loader-register"></div>
+                </button>
+            </form>
+        </div>
+
+        <p class="mt-6 text-sm text-gray-300">
+            Já possui conta? <a href="#" onclick="window.switchScreen('login-screen')" class="text-brandGreen font-bold hover:underline">Fazer Login</a>
+        </p>
+    </div>
+
+    <!-- TELA DO DASHBOARD PRINCIPAL -->
+    <div id="dashboard-screen" class="w-full min-h-screen hidden-screen flex flex-col md:flex-row bg-darkBg absolute inset-0">
+        
+        <!-- SIDEBAR DE NAVEGAÇÃO -->
+        <aside class="w-full md:w-72 bg-[#132017] border-b md:border-b-0 md:border-r border-gray-700 flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.5)] z-20 transition-all">
+            <div class="p-6 flex justify-between items-center border-b border-gray-700 md:justify-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl border border-gray-700 bg-cardBg flex justify-center items-center shadow-lg p-1.5 relative overflow-hidden group">
+                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="w-full h-full relative z-10">
+                            <rect x="20" y="60" width="14" height="20" rx="3" fill="#3a6344" />
+                            <rect x="43" y="45" width="14" height="35" rx="3" fill="#528a54" />
+                            <path d="M 66 80 L 66 35 L 54 35 L 73 12 L 92 35 L 80 35 L 80 80 Z" fill="#78c658" />
+                            <path d="M 18 45 C 18 20 42 20 42 20 C 42 20 42 45 18 45 Z" fill="#78c658" opacity="0.9"/>
+                        </svg>
+                    </div>
+                    <div class="relative cursor-default">
+                        <h2 class="text-2xl font-bold text-white">Econ<span class="text-brandGreen">ODS</span></h2>
+                    </div>
+                </div>
+                <button class="md:hidden text-gray-300 hover:text-white text-2xl" onclick="document.getElementById('nav-menu').classList.toggle('hidden'); document.getElementById('nav-profile').classList.toggle('hidden');">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+
+            <!-- MENU PRINCIPAL (TABS) -->
+            <nav id="nav-menu" class="flex-1 p-4 flex flex-col gap-2 overflow-y-auto custom-scrollbar hidden md:flex">
+                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-2 mt-2 px-3">Principal</p>
+                
+                <button onclick="window.switchTab('visao-geral')" id="btn-visao-geral" class="tab-link active flex items-center gap-4 px-4 py-3 rounded-xl font-semibold transition-all relative overflow-hidden group bg-brandGreen bg-opacity-10 text-brandGreen border border-brandGreen border-opacity-30 shadow-[0_0_15px_rgba(120,198,88,0.05)]">
+                    <div class="active-indicator absolute left-0 top-0 bottom-0 w-1 bg-brandGreen rounded-r-md block"></div>
+                    <i class="fa-solid fa-chart-pie w-6 text-center text-lg"></i>
+                    <span>Visão Geral</span>
+                </button>
+                
+                <button onclick="window.switchTab('metas')" id="btn-metas" class="tab-link flex items-center gap-4 px-4 py-3 rounded-xl font-medium transition-all group text-gray-400 hover:text-white hover:bg-white hover:bg-opacity-5 hover:translate-x-2 border border-transparent">
+                    <div class="active-indicator absolute left-0 top-0 bottom-0 w-1 bg-brandGreen rounded-r-md hidden"></div>
+                    <i class="fa-solid fa-bullseye w-6 text-center text-lg group-hover:text-brandGreen transition-colors"></i>
+                    <span>Metas ODS 8</span>
+                </button>
+
+                <button onclick="window.switchTab('relatorios')" id="btn-relatorios" class="tab-link flex items-center gap-4 px-4 py-3 rounded-xl font-medium transition-all group text-gray-400 hover:text-white hover:bg-white hover:bg-opacity-5 hover:translate-x-2 border border-transparent">
+                    <div class="active-indicator absolute left-0 top-0 bottom-0 w-1 bg-brandGreen rounded-r-md hidden"></div>
+                    <i class="fa-solid fa-file-contract w-6 text-center text-lg group-hover:text-brandGreen transition-colors"></i>
+                    <span>Relatórios Oficiais</span>
+                </button>
+
+                <p class="text-xs text-gray-500 font-bold uppercase tracking-wider mb-2 mt-6 px-3">Informativos</p>
+
+                <button onclick="window.switchTab('noticias')" id="btn-noticias" class="tab-link flex items-center gap-4 px-4 py-3 rounded-xl font-medium transition-all group text-gray-400 hover:text-white hover:bg-white hover:bg-opacity-5 hover:translate-x-2 border border-transparent">
+                    <div class="active-indicator absolute left-0 top-0 bottom-0 w-1 bg-brandGreen rounded-r-md hidden"></div>
+                    <i class="fa-regular fa-newspaper w-6 text-center text-lg group-hover:text-blue-400 transition-colors"></i>
+                    <span>Notícias & Artigos</span>
+                </button>
+            </nav>
+
+            <div id="nav-profile" class="p-4 border-t border-gray-700 hidden md:block">
+                <button onclick="window.handleLogout()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500 hover:bg-opacity-10 hover:text-red-300 transition-all font-medium group">
+                    <i class="fa-solid fa-right-from-bracket w-6 text-center group-hover:-translate-x-1 transition-transform"></i>
+                    <span>Sair da Conta</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- ÁREA PRINCIPAL -->
+        <main class="flex-1 max-h-screen overflow-y-auto custom-scrollbar relative bg-darkBg">
+            
+            <!-- CONTEÚDO: VISÃO GERAL -->
+            <div id="tab-visao-geral" class="tab-content active w-full p-8 pb-20">
+                <header class="w-full pb-6 flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-gray-800 mb-6">
+                    <div>
+                        <h1 class="text-3xl font-bold text-white mb-1 tracking-wide">Visão Geral</h1>
+                        <p class="text-gray-400 text-sm">Indicadores do Crescimento Econômico Global.</p>
+                    </div>
+                </header>
+
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                    <!-- Descrição ODS 8 -->
+                    <div class="md:col-span-12 bg-cardBg p-8 rounded-2xl border border-brandGreen shadow-[0_0_15px_rgba(120,198,88,0.15)] relative overflow-hidden group">
+                        <div class="absolute -right-5 -top-5 text-brandGreen opacity-5 text-9xl pointer-events-none"><i class="fa-solid fa-bullseye"></i></div>
+                        <div class="flex items-center mb-4 relative z-10">
+                            <div class="bg-brandGreen bg-opacity-20 p-3 rounded-xl text-brandGreen mr-4 shadow-inner"><i class="fa-solid fa-bullseye text-2xl"></i></div>
+                            <h3 class="text-2xl font-bold text-white">Objetivo de Desenvolvimento Sustentável 8</h3>
+                        </div>
+                        <p class="text-gray-300 leading-relaxed text-lg italic border-l-4 border-brandGreen pl-4 py-1 relative z-10">
+                            "Promover o crescimento econômico sustentado, inclusivo e sustentável, o emprego pleno e produtivo, e o trabalho digno para todos."
+                        </p>
+                    </div>
+
+                    <!-- Cards Estatísticos -->
+                    <div onclick="window.openModal('desemprego')" class="md:col-span-4 bg-cardBg p-6 rounded-2xl border border-gray-700 hover:border-blue-500 transition-all duration-300 cursor-pointer transform hover:-translate-y-2 group">
+                        <div class="text-blue-400 mb-4 flex justify-between items-center">
+                            <i class="fa-solid fa-globe text-3xl group-hover:scale-110 transition-transform"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-2">Desemprego Global</h4>
+                        <p class="text-3xl font-black text-brandGreen mb-3">5.8%</p>
+                        <p class="text-gray-400 text-sm">Taxa acima dos níveis pré-pandêmicos. <span class="text-blue-400 text-xs block mt-3">Ver gráfico &rarr;</span></p>
+                    </div>
+
+                    <div onclick="window.openModal('verdes')" class="md:col-span-4 bg-cardBg p-6 rounded-2xl border border-gray-700 hover:border-brandGreen transition-all duration-300 cursor-pointer transform hover:-translate-y-2 group">
+                        <div class="text-brandGreen mb-4 flex justify-between items-center">
+                            <i class="fa-solid fa-leaf text-3xl group-hover:scale-110 transition-transform"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-2">Empregos Verdes</h4>
+                        <p class="text-3xl font-black text-brandGreen mb-3">+24 Milhões</p>
+                        <p class="text-gray-400 text-sm">Projeção para transição ecológica até 2030. <span class="text-brandGreen text-xs block mt-3">Ver gráfico &rarr;</span></p>
+                    </div>
+
+                    <div onclick="window.openModal('jovens')" class="md:col-span-4 bg-cardBg p-6 rounded-2xl border border-gray-700 hover:border-pink-500 transition-all duration-300 cursor-pointer transform hover:-translate-y-2 group">
+                        <div class="text-pink-400 mb-4 flex justify-between items-center">
+                            <i class="fa-solid fa-users text-3xl group-hover:scale-110 transition-transform"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-2">Jovens Fora do Mercado</h4>
+                        <p class="text-3xl font-black text-brandGreen mb-3">22.4%</p>
+                        <p class="text-gray-400 text-sm">Jovens da geração Z fora da escola e do emprego. <span class="text-pink-400 text-xs block mt-3">Ver gráfico &rarr;</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTEÚDO: METAS ODS 8 -->
+            <div id="tab-metas" class="tab-content w-full p-8 pb-20">
+                <header class="w-full pb-6 border-b border-gray-800 mb-6 flex items-center gap-4">
+                    <div class="bg-brandGreen bg-opacity-20 p-3 rounded-xl text-brandGreen"><i class="fa-solid fa-bullseye text-2xl"></i></div>
+                    <div>
+                        <h1 class="text-3xl font-bold text-white mb-1">Metas Oficiais do ODS 8</h1>
+                        <p class="text-gray-400 text-sm">Principais alvos globais estabelecidos pela ONU para a Agenda 2030.</p>
+                    </div>
+                </header>
+
+                <div class="space-y-6">
+                    <!-- Meta 8.1 -->
+                    <div class="bg-cardBg p-6 rounded-2xl border border-gray-700">
+                        <h3 class="text-xl font-bold text-white mb-2 flex items-center gap-2"><span class="text-brandGreen">8.1</span> Crescimento Econômico</h3>
+                        <p class="text-gray-400 text-sm mb-4">Sustentar o crescimento econômico per capita de acordo com as circunstâncias nacionais e, em particular, um crescimento anual de pelo menos 7% do PIB nos países menos desenvolvidos.</p>
+                        <div class="w-full bg-gray-800 rounded-full h-2.5 mb-1"><div class="bg-brandGreen h-2.5 rounded-full" style="width: 45%"></div></div>
+                        <p class="text-right text-xs text-brandGreen font-bold">Progresso Global Estimado: 45%</p>
+                    </div>
+                    
+                    <!-- Meta 8.2 -->
+                    <div class="bg-cardBg p-6 rounded-2xl border border-gray-700">
+                        <h3 class="text-xl font-bold text-white mb-2 flex items-center gap-2"><span class="text-brandGreen">8.2</span> Produtividade e Inovação</h3>
+                        <p class="text-gray-400 text-sm mb-4">Atingir níveis mais elevados de produtividade econômica através da diversificação, atualização tecnológica e inovação.</p>
+                        <div class="w-full bg-gray-800 rounded-full h-2.5 mb-1"><div class="bg-blue-500 h-2.5 rounded-full" style="width: 60%"></div></div>
+                        <p class="text-right text-xs text-blue-500 font-bold">Progresso Global Estimado: 60%</p>
+                    </div>
+
+                    <!-- Meta 8.5 -->
+                    <div class="bg-cardBg p-6 rounded-2xl border border-gray-700">
+                        <h3 class="text-xl font-bold text-white mb-2 flex items-center gap-2"><span class="text-brandGreen">8.5</span> Emprego Pleno e Igualdade</h3>
+                        <p class="text-gray-400 text-sm mb-4">Até 2030, alcançar o emprego pleno e produtivo e o trabalho decente para todas as mulheres e homens, inclusive para os jovens e as pessoas com deficiência, e remuneração igual para trabalho de igual valor.</p>
+                        <div class="w-full bg-gray-800 rounded-full h-2.5 mb-1"><div class="bg-pink-500 h-2.5 rounded-full" style="width: 35%"></div></div>
+                        <p class="text-right text-xs text-pink-500 font-bold">Progresso Global Estimado: 35%</p>
+                    </div>
+
+                    <!-- Meta 8.7 -->
+                    <div class="bg-cardBg p-6 rounded-2xl border border-gray-700">
+                        <h3 class="text-xl font-bold text-white mb-2 flex items-center gap-2"><span class="text-brandGreen">8.7</span> Fim do Trabalho Escravo e Infantil</h3>
+                        <p class="text-gray-400 text-sm mb-4">Tomar medidas imediatas e eficazes para erradicar o trabalho forçado, acabar com a escravidão moderna e o tráfico de pessoas, e assegurar a proibição e eliminação das piores formas de trabalho infantil.</p>
+                        <div class="w-full bg-gray-800 rounded-full h-2.5 mb-1"><div class="bg-yellow-500 h-2.5 rounded-full" style="width: 70%"></div></div>
+                        <p class="text-right text-xs text-yellow-500 font-bold">Progresso Global Estimado: 70%</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTEÚDO: RELATÓRIOS OFICIAIS -->
+            <div id="tab-relatorios" class="tab-content w-full p-8 pb-20">
+                <header class="w-full pb-6 border-b border-gray-800 mb-6 flex items-center gap-4">
+                    <div class="bg-brandGreen bg-opacity-20 p-3 rounded-xl text-brandGreen"><i class="fa-solid fa-file-contract text-2xl"></i></div>
+                    <div>
+                        <h1 class="text-3xl font-bold text-white mb-1">Relatórios Econômicos Globais</h1>
+                        <p class="text-gray-400 text-sm">Dados reais baseados nas principais instituições internacionais.</p>
+                    </div>
+                </header>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- OIT -->
+                    <div class="bg-cardBg p-6 rounded-2xl border border-gray-700 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-3 mb-4">
+                                <i class="fa-solid fa-building-ngo text-blue-400 text-3xl"></i>
+                                <h3 class="text-xl font-bold text-white">OIT (Organização Internacional do Trabalho)</h3>
+                            </div>
+                            <p class="text-brandGreen text-sm font-semibold mb-2">Perspectivas Sociais e de Emprego no Mundo</p>
+                            <p class="text-gray-300 text-sm leading-relaxed mb-4">
+                                O relatório recente alerta para a persistência das desigualdades estruturais. Apesar da recuperação parcial no volume de empregos após crises recentes, a <strong class="text-white">qualidade do trabalho piorou</strong>. Observa-se um aumento no trabalho informal e estagnação de salários reais frente à inflação de bens essenciais, distanciando o mundo da Meta 8.5.
+                            </p>
+                        </div>
+                        <div class="bg-darkBg p-3 rounded-lg border border-gray-700 text-xs text-gray-400">
+                            <i class="fa-solid fa-chart-line text-blue-400 mr-1"></i> Déficit de empregos globais se mantém na casa de dezenas de milhões.
+                        </div>
+                    </div>
+
+                    <!-- FMI -->
+                    <div class="bg-cardBg p-6 rounded-2xl border border-gray-700 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-3 mb-4">
+                                <i class="fa-solid fa-landmark text-yellow-400 text-3xl"></i>
+                                <h3 class="text-xl font-bold text-white">FMI (Fundo Monetário Internacional)</h3>
+                            </div>
+                            <p class="text-brandGreen text-sm font-semibold mb-2">World Economic Outlook (WEO)</p>
+                            <p class="text-gray-300 text-sm leading-relaxed mb-4">
+                                As projeções do FMI indicam um crescimento econômico global resiliente, porém lento. O Fundo destaca a necessidade urgente de qualificação da força de trabalho frente à <strong class="text-white">revolução da Inteligência Artificial</strong>, que pode afetar até 40% dos empregos globais, exacerbando a desigualdade de renda se não houver redes de proteção social (Meta 8.2 e 8.5).
+                            </p>
+                        </div>
+                        <div class="bg-darkBg p-3 rounded-lg border border-gray-700 text-xs text-gray-400">
+                            <i class="fa-solid fa-robot text-yellow-400 mr-1"></i> IA impactará fortemente tarefas de colarinho branco.
+                        </div>
+                    </div>
+
+                    <!-- Banco Mundial -->
+                    <div class="bg-cardBg p-6 rounded-2xl border border-gray-700 md:col-span-2">
+                        <div class="flex items-center gap-3 mb-4">
+                            <i class="fa-solid fa-earth-americas text-brandGreen text-3xl"></i>
+                            <h3 class="text-xl font-bold text-white">Banco Mundial</h3>
+                        </div>
+                        <p class="text-brandGreen text-sm font-semibold mb-2">Global Economic Prospects</p>
+                        <p class="text-gray-300 text-sm leading-relaxed">
+                            O relatório aponta para um cenário desafiador nas economias em desenvolvimento. Altos custos de empréstimos (juros altos globais) limitam o investimento governamental na transição energética e infraestrutura. O Banco Mundial reforça que sem um impulso substancial no investimento sustentável, as metas de erradicação da pobreza extrema e o crescimento per capita robusto (Meta 8.1) não serão atingidos nesta década.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CONTEÚDO: NOTÍCIAS E LÍDERES -->
+            <div id="tab-noticias" class="tab-content w-full p-8 pb-20">
+                <header class="w-full pb-6 border-b border-gray-800 mb-6 flex items-center gap-4">
+                    <div class="bg-brandGreen bg-opacity-20 p-3 rounded-xl text-brandGreen"><i class="fa-regular fa-newspaper text-2xl"></i></div>
+                    <div>
+                        <h1 class="text-3xl font-bold text-white mb-1">Painel Político Global</h1>
+                        <p class="text-gray-400 text-sm">Como os chefes de Estado têm abordado a Economia e o Trabalho.</p>
+                    </div>
+                </header>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <!-- Brasil -->
+                    <div class="bg-cardBg p-6 rounded-2xl border border-gray-700 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fa-solid fa-flag text-6xl"></i></div>
+                        <h3 class="text-xl font-bold text-white mb-1">Brasil (Luiz Inácio Lula da Silva)</h3>
+                        <p class="text-brandGreen text-xs font-semibold mb-4 uppercase tracking-wider">Foco Nacional e G20</p>
+                        <p class="text-gray-300 text-sm leading-relaxed border-l-2 border-brandGreen pl-3">
+                            Na presidência do G20 e em discursos recentes, o foco tem sido alinhar o crescimento econômico com o combate imediato à fome e à pobreza. O governo defende a valorização contínua do salário mínimo acima da inflação, a taxação de super-ricos para financiar a transição ecológica justa e acordos multilaterais para proteger trabalhadores em plataformas digitais.
+                        </p>
+                    </div>
+
+                    <!-- EUA -->
+                    <div class="bg-cardBg p-6 rounded-2xl border border-gray-700 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fa-solid fa-flag-usa text-6xl"></i></div>
+                        <h3 class="text-xl font-bold text-white mb-1">Estados Unidos (Joe Biden)</h3>
+                        <p class="text-blue-400 text-xs font-semibold mb-4 uppercase tracking-wider">Middle-Out Economics</p>
+                        <p class="text-gray-300 text-sm leading-relaxed border-l-2 border-blue-400 pl-3">
+                            A administração tem focado no que chamam de "Bidenomics": crescer a economia de baixo para cima e do meio para fora. Há forte incentivo à sindicalização e criação de empregos industriais através de leis como o Inflation Reduction Act, que atrela bilhões em incentivos fiscais verdes à obrigatoriedade de pagamento de salários justos ("prevailing wages") pelas empresas.
+                        </p>
+                    </div>
+
+                    <!-- França -->
+                    <div class="bg-cardBg p-6 rounded-2xl border border-gray-700 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fa-solid fa-monument text-6xl"></i></div>
+                        <h3 class="text-xl font-bold text-white mb-1">França (Emmanuel Macron)</h3>
+                        <p class="text-red-400 text-xs font-semibold mb-4 uppercase tracking-wider">Soberania e Reindustrialização</p>
+                        <p class="text-gray-300 text-sm leading-relaxed border-l-2 border-red-400 pl-3">
+                            Macron tem defendido intensamente a reindustrialização verde da França e a "soberania estratégica" europeia frente à China e EUA. Seu governo busca atrair megafábricas de baterias e investimentos em Inteligência Artificial, ressaltando que o crescimento deve financiar o modelo social europeu de proteção ao trabalhador, embora enfrentando tensões internas sobre reformas previdenciárias.
+                        </p>
+                    </div>
+
+                    <!-- Alemanha -->
+                    <div class="bg-cardBg p-6 rounded-2xl border border-gray-700 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4 opacity-10"><i class="fa-solid fa-industry text-6xl"></i></div>
+                        <h3 class="text-xl font-bold text-white mb-1">Alemanha (Olaf Scholz)</h3>
+                        <p class="text-yellow-400 text-xs font-semibold mb-4 uppercase tracking-wider">Transição e Imigração Qualificada</p>
+                        <p class="text-gray-300 text-sm leading-relaxed border-l-2 border-yellow-400 pl-3">
+                            Liderando a maior economia da Europa, o governo alemão foca na massiva modernização industrial para atingir a neutralidade climática. Paralelamente ao ODS 8, Scholz impulsionou leis de imigração mais flexíveis para atrair mão de obra qualificada de fora da União Europeia, mitigando a escassez crítica de trabalhadores que ameaça a estabilidade econômica do país.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="stats-modal" class="fixed inset-0 bg-black bg-opacity-80 z-[100] hidden-screen flex-col justify-center items-center p-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-cardBg w-full max-w-4xl rounded-3xl p-8 border border-gray-700 shadow-2xl relative">
+            <button onclick="window.closeModal()" class="absolute top-5 right-5 text-gray-500 hover:text-white text-2xl transition-colors bg-darkBg w-10 h-10 rounded-full flex items-center justify-center border border-gray-700 hover:border-red-500 hover:bg-red-500 hover:bg-opacity-20">
+                <i class="fa-solid fa-times"></i>
+            </button>
+            <div id="modal-content" class="w-full">
+                <!-- Conteúdo do Gráfico Injetado -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Notificações
+        window.showNotification = (message, isError = false) => {
+            const toast = document.getElementById('toast-notification');
+            toast.textContent = message;
+            toast.className = `fixed top-5 right-5 px-6 py-3 rounded shadow-lg z-50 transition-opacity duration-300 ${isError ? 'bg-red-600 text-white' : 'bg-brandGreen text-black'}`;
+            toast.classList.remove('opacity-0', 'pointer-events-none');
+            setTimeout(() => { toast.classList.add('opacity-0', 'pointer-events-none'); }, 4000);
+        };
+
+        // Navegação de Telas Principais
+        window.switchScreen = (screenId) => {
+            document.getElementById('login-screen').classList.add('hidden-screen');
+            document.getElementById('register-screen').classList.add('hidden-screen');
+            document.getElementById('dashboard-screen').classList.add('hidden-screen');
+            document.getElementById(screenId).classList.remove('hidden-screen');
+            if(screenId === 'dashboard-screen') document.getElementById(screenId).classList.add('flex');
+        };
+
+        // Lógica de TABS (Abas) no Dashboard
+        window.switchTab = (tabName) => {
+            // Esconder todos os conteúdos
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            // Resetar estilos dos botões do menu
+            document.querySelectorAll('.tab-link').forEach(el => {
+                el.classList.remove('bg-brandGreen', 'bg-opacity-10', 'text-brandGreen', 'border-brandGreen', 'shadow-[0_0_15px_rgba(120,198,88,0.05)]');
+                el.classList.add('text-gray-400', 'border-transparent');
+                el.querySelector('.active-indicator').classList.add('hidden');
+                el.querySelector('.active-indicator').classList.remove('block');
+                const icon = el.querySelector('i');
+                if(!el.id.includes('noticias')) icon.className = icon.className.replace('text-brandGreen', '');
+            });
+
+            // Mostrar Aba clicada
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            
+            // Ativar estilo do botão clicado
+            const activeBtn = document.getElementById(`btn-${tabName}`);
+            activeBtn.classList.remove('text-gray-400', 'border-transparent');
+            activeBtn.classList.add('bg-brandGreen', 'bg-opacity-10', 'text-brandGreen', 'border-brandGreen', 'shadow-[0_0_15px_rgba(120,198,88,0.05)]');
+            activeBtn.querySelector('.active-indicator').classList.remove('hidden');
+            activeBtn.querySelector('.active-indicator').classList.add('block');
+            
+            // Fecha o menu no mobile ao clicar
+            if (window.innerWidth < 768) {
+                document.getElementById('nav-menu').classList.add('hidden');
+                document.getElementById('nav-profile').classList.add('hidden');
+            }
+        };
+
+        const toggleLoading = (buttonId, loaderId, isLoading) => {
+            const btn = document.getElementById(buttonId);
+            const loader = document.getElementById(loaderId);
+            const textSpan = btn.querySelector('span');
+            if (isLoading) {
+                btn.disabled = true; btn.classList.add('opacity-80', 'cursor-not-allowed');
+                textSpan.style.display = 'none'; loader.style.display = 'block';
+            } else {
+                btn.disabled = false; btn.classList.remove('opacity-80', 'cursor-not-allowed');
+                textSpan.style.display = 'block'; loader.style.display = 'none';
+            }
+        };
+
+        window.onload = () => {
+            const activeUser = localStorage.getItem('econods_active_user');
+            if (activeUser) window.switchScreen('dashboard-screen');
+        };
+
+        window.handleRegister = (event) => {
+            event.preventDefault();
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            toggleLoading('btn-register', 'loader-register', true);
+            setTimeout(() => {
+                let users = JSON.parse(localStorage.getItem('econods_users')) || [];
+                if (users.some(user => user.email === email)) {
+                    window.showNotification("Este e-mail já está em uso.", true);
+                } else {
+                    users.push({ email, password });
+                    localStorage.setItem('econods_users', JSON.stringify(users));
+                    localStorage.setItem('econods_active_user', email);
+                    window.showNotification('Conta criada com sucesso!', false);
+                    document.getElementById('register-form').reset();
+                    window.switchScreen('dashboard-screen');
+                }
+                toggleLoading('btn-register', 'loader-register', false);
+            }, 1000); 
+        };
+
+        window.handleLogin = (event) => {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            toggleLoading('btn-login', 'loader-login', true);
+            setTimeout(() => {
+                let users = JSON.parse(localStorage.getItem('econods_users')) || [];
+                const validUser = users.find(user => user.email === email && user.password === password);
+                if (validUser) {
+                    localStorage.setItem('econods_active_user', email);
+                    window.showNotification('Login realizado com sucesso!', false);
+                    document.getElementById('login-form').reset();
+                    window.switchScreen('dashboard-screen');
+                } else {
+                    window.showNotification('E-mail ou senha incorretos.', true);
+                }
+                toggleLoading('btn-login', 'loader-login', false);
+            }, 1000);
+        };
+
+        window.handleLogout = () => {
+            localStorage.removeItem('econods_active_user');
+            window.showNotification('Você saiu da conta.', false);
+            window.switchScreen('login-screen');
+        };
+
+        const chartsData = {
+            desemprego: {
+                title: "Taxa de Desemprego Global", color: "text-blue-400", icon: "fa-globe",
+                description: "A pandemia causou perda massiva de postos de trabalho. A recuperação recente tem sido afetada por inflação e crises geopolíticas.",
+                max: 8,
+                data: [
+                    { year: '2016', value: 5.7, label: '5.7%' }, { year: '2017', value: 5.5, label: '5.5%' },
+                    { year: '2018', value: 5.4, label: '5.4%' }, { year: '2019', value: 5.3, label: '5.3%' },
+                    { year: '2020', value: 6.5, label: '6.5%' }, { year: '2021', value: 6.2, label: '6.2%' },
+                    { year: '2022', value: 5.8, label: '5.8%' }, { year: '2023', value: 5.5, label: '5.5%' },
+                    { year: '2024', value: 5.2, label: '5.2%' }, { year: '2025', value: 5.4, label: '5.4%' },
+                    { year: '2026', value: 5.8, label: '5.8%' }
+                ]
+            },
+            verdes: {
+                title: "Criação de Empregos Verdes", color: "text-brandGreen", icon: "fa-leaf",
+                description: "O aumento exponencial de vagas neste setor deve-se à urgência do Acordo de Paris e investimentos em transição energética.",
+                max: 26,
+                data: [
+                    { year: '2016', value: 9.8, label: '9.8M' }, { year: '2017', value: 10.5, label: '10.5M' },
+                    { year: '2018', value: 11.2, label: '11.2M' }, { year: '2019', value: 12.0, label: '12.0M' },
+                    { year: '2020', value: 11.5, label: '11.5M' }, { year: '2021', value: 13.5, label: '13.5M' },
+                    { year: '2022', value: 15.2, label: '15.2M' }, { year: '2023', value: 17.5, label: '17.5M' },
+                    { year: '2024', value: 19.8, label: '19.8M' }, { year: '2025', value: 21.6, label: '21.6M' },
+                    { year: '2026', value: 24.0, label: '24.0M' }
+                ]
+            },
+            jovens: {
+                title: "Jovens Fora do Mercado", color: "text-pink-400", icon: "fa-users",
+                description: "A Taxa NEET (jovens que não estudam nem trabalham) permanece alarmante, mostrando a desconexão entre educação e exigências da era tecnológica.",
+                max: 26,
+                data: [
+                    { year: '2016', value: 21.5, label: '21.5%' }, { year: '2017', value: 21.3, label: '21.3%' },
+                    { year: '2018', value: 21.2, label: '21.2%' }, { year: '2019', value: 21.1, label: '21.1%' },
+                    { year: '2020', value: 23.5, label: '23.5%' }, { year: '2021', value: 22.8, label: '22.8%' },
+                    { year: '2022', value: 22.5, label: '22.5%' }, { year: '2023', value: 22.1, label: '22.1%' },
+                    { year: '2024', value: 22.0, label: '22.0%' }, { year: '2025', value: 22.2, label: '22.2%' },
+                    { year: '2026', value: 22.4, label: '22.4%' }
+                ]
+            }
+        };
+
+        window.openModal = (type) => {
+            const data = chartsData[type];
+            const modal = document.getElementById('stats-modal');
+            const content = document.getElementById('modal-content');
+            
+            const barsHtml = data.data.map((d, i) => {
+                const heightPercent = (d.value / data.max) * 100;
+                return `
+                    <div class="chart-bar" id="bar-${i}" data-height="${heightPercent}%" style="height: 0%;">
+                        <div class="chart-tooltip">${d.label}</div>
+                        <div class="chart-label-x">'${d.year.slice(-2)}</div>
+                    </div>
+                `;
+            }).join('');
+
+            content.innerHTML = `
+                <div class="flex items-center mb-6">
+                    <div class="bg-darkBg p-4 rounded-xl border border-gray-700 mr-5 shadow-inner">
+                        <i class="fa-solid ${data.icon} ${data.color} text-4xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl md:text-3xl font-bold text-white">${data.title}</h3>
+                        <p class="text-brandGreen font-medium mt-1">Comparativo de 2016 a 2026</p>
+                    </div>
+                </div>
+                <p class="text-gray-300 mb-8 bg-black bg-opacity-30 p-5 rounded-xl border-l-4 border-brandGreen text-md">
+                    ${data.description}
+                </p>
+                <div class="bg-darkBg p-6 rounded-2xl border border-gray-700">
+                    <h4 class="text-white font-semibold mb-2 flex justify-between items-center">
+                        <span>Evolução Histórica</span>
+                        <span class="text-gray-500 text-xs md:text-sm font-normal"><i class="fa-solid fa-hand-pointer mr-1"></i> Passe o mouse</span>
+                    </h4>
+                    <div class="chart-container">${barsHtml}</div>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden-screen'); modal.classList.add('flex');
+            setTimeout(() => {
+                data.data.forEach((d, i) => {
+                    const bar = document.getElementById(`bar-${i}`);
+                    if(bar) bar.style.height = bar.getAttribute('data-height');
+                });
+            }, 50);
+        };
+
+        window.closeModal = () => {
+            const modal = document.getElementById('stats-modal');
+            modal.classList.add('hidden-screen'); modal.classList.remove('flex');
+            setTimeout(() => { document.getElementById('modal-content').innerHTML = ''; }, 300);
+        };
+    </script>
+</body>
+</html>

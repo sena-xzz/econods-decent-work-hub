@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EconODS - ODS 8</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
         tailwind.config = {
@@ -306,6 +307,54 @@
                         <div class="w-full bg-gray-800 rounded-full h-2.5 mb-1"><div class="bg-yellow-500 h-2.5 rounded-full" style="width: 70%"></div></div>
                         <p class="text-right text-xs text-yellow-500 font-bold">Progresso Global Estimado: 70%</p>
                     </div>
+                    <div class="bg-cardBg p-6 rounded-2xl border border-gray-700">
+                        <h3 class="text-xl font-bold text-white mb-2 flex items-center gap-2"><span class="text-brandGreen">8.3</span> Empreendedorismo e Formalização</h3>
+                        <p class="text-gray-400 text-sm mb-4">Promover políticas orientadas para o desenvolvimento que apoiem as atividades produtivas, geração de emprego decente, empreendedorismo, criatividade e inovação, e incentivar a formalização e o crescimento das micro, pequenas e médias empresas, inclusive por meio do acesso a serviços financeiros.</p>
+                        <div class="w-full bg-gray-800 rounded-full h-2.5 mb-1"><div class="bg-teal-500 h-2.5 rounded-full" style="width: 40%"></div></div>
+                        <p class="text-right text-xs text-teal-500 font-bold">Progresso Global Estimado: 40%</p>
+                    </div>
+                    <div class="bg-cardBg p-6 rounded-2xl border border-gray-700">
+                        <h3 class="text-xl font-bold text-white mb-2 flex items-center gap-2"><span class="text-brandGreen">8.4</span> Eficiência de Recursos</h3>
+                        <p class="text-gray-400 text-sm mb-4">Melhorar progressivamente, até 2030, a eficiência dos recursos globais no consumo e na produção, e empenhar-se para dissociar o crescimento econômico da degradação ambiental.</p>
+                        <div class="w-full bg-gray-800 rounded-full h-2.5 mb-1"><div class="bg-emerald-500 h-2.5 rounded-full" style="width: 30%"></div></div>
+                        <p class="text-right text-xs text-emerald-500 font-bold">Progresso Global Estimado: 30%</p>
+                    </div>
+                    <div class="bg-cardBg p-6 rounded-2xl border border-gray-700">
+                        <h3 class="text-xl font-bold text-white mb-2 flex items-center gap-2"><span class="text-brandGreen">8.6</span> Jovens no Trabalho e na Educação</h3>
+                        <p class="text-gray-400 text-sm mb-4">Até 2020, reduzir substancialmente a proporção de jovens sem emprego, educação ou formação.</p>
+                        <div class="w-full bg-gray-800 rounded-full h-2.5 mb-1"><div class="bg-orange-500 h-2.5 rounded-full" style="width: 25%"></div></div>
+                        <p class="text-right text-xs text-orange-500 font-bold">Progresso Global Estimado: 25%</p>
+                    </div>
+                    <div class="bg-cardBg p-6 rounded-2xl border border-gray-700">
+                        <h3 class="text-xl font-bold text-white mb-2 flex items-center gap-2"><span class="text-brandGreen">8.8</span> Direitos Trabalhistas e Segurança</h3>
+                        <p class="text-gray-400 text-sm mb-4">Proteger os direitos trabalhistas e promover ambientes de trabalho seguros e protegidos para todos os trabalhadores, incluindo os migrantes, em particular as mulheres migrantes, e pessoas em empregos precários.</p>
+                        <div class="w-full bg-gray-800 rounded-full h-2.5 mb-1"><div class="bg-red-500 h-2.5 rounded-full" style="width: 50%"></div></div>
+                        <p class="text-right text-xs text-red-500 font-bold">Progresso Global Estimado: 50%</p>
+                    </div>
+                    <div class="bg-cardBg p-6 rounded-2xl border border-gray-700">
+                        <h3 class="text-xl font-bold text-white mb-2 flex items-center gap-2"><span class="text-brandGreen">8.9</span> Turismo Sustentável</h3>
+                        <p class="text-gray-400 text-sm mb-4">Até 2030, elaborar e implementar políticas para promover o turismo sustentável, que gera empregos e promove a cultura e os produtos locais.</p>
+                        <div class="w-full bg-gray-800 rounded-full h-2.5 mb-1"><div class="bg-cyan-500 h-2.5 rounded-full" style="width: 55%"></div></div>
+                        <p class="text-right text-xs text-cyan-500 font-bold">Progresso Global Estimado: 55%</p>
+                    </div>
+                    <div class="bg-cardBg p-6 rounded-2xl border border-gray-700">
+                        <h3 class="text-xl font-bold text-white mb-2 flex items-center gap-2"><span class="text-brandGreen">8.10</span> Acesso a Serviços Financeiros</h3>
+                        <p class="text-gray-400 text-sm mb-4">Fortalecer a capacidade das instituições financeiras nacionais para incentivar a expansão do acesso aos serviços bancários, de seguros e financeiros para todos.</p>
+                        <div class="w-full bg-gray-800 rounded-full h-2.5 mb-1"><div class="bg-indigo-500 h-2.5 rounded-full" style="width: 65%"></div></div>
+                        <p class="text-right text-xs text-indigo-500 font-bold">Progresso Global Estimado: 65%</p>
+                    </div>
+                    <div class="bg-cardBg p-6 rounded-2xl border border-gray-700">
+                        <h3 class="text-xl font-bold text-white mb-2 flex items-center gap-2"><span class="text-brandGreen">8.a</span> Ajuda para o Comércio</h3>
+                        <p class="text-gray-400 text-sm mb-4">Aumentar o apoio da Iniciativa de Ajuda para o Comércio (Aid for Trade) para os países em desenvolvimento, particularmente os países menos desenvolvidos.</p>
+                        <div class="w-full bg-gray-800 rounded-full h-2.5 mb-1"><div class="bg-lime-500 h-2.5 rounded-full" style="width: 45%"></div></div>
+                        <p class="text-right text-xs text-lime-500 font-bold">Progresso Global Estimado: 45%</p>
+                    </div>
+                    <div class="bg-cardBg p-6 rounded-2xl border border-gray-700">
+                        <h3 class="text-xl font-bold text-white mb-2 flex items-center gap-2"><span class="text-brandGreen">8.b</span> Estratégia Global para o Emprego Jovem</h3>
+                        <p class="text-gray-400 text-sm mb-4">Até 2020, desenvolver e operacionalizar uma estratégia global para o emprego dos jovens e implementar o Pacto Mundial para o Emprego da Organização Internacional do Trabalho (OIT).</p>
+                        <div class="w-full bg-gray-800 rounded-full h-2.5 mb-1"><div class="bg-amber-500 h-2.5 rounded-full" style="width: 35%"></div></div>
+                        <p class="text-right text-xs text-amber-500 font-bold">Progresso Global Estimado: 35%</p>
+                    </div>
                 </div>
             </div>
 
@@ -501,54 +550,43 @@
             }
         };
 
-        window.onload = () => {
-            const activeUser = localStorage.getItem('econods_active_user');
-            if (activeUser) window.switchScreen('dashboard-screen');
+        const sb = window.supabase.createClient("https://zlpjhuczfobokkdqilar.supabase.co", "sb_publishable_WtHVMQhcfGjuY0ltMPzGGA_rvmF2Cz1");
+        const traduzErro = (m) => /Invalid login/i.test(m) ? 'E-mail ou senha incorretos.' : /already registered/i.test(m) ? 'Este e-mail já está em uso.' : /not confirmed/i.test(m) ? 'Confirme seu e-mail antes de entrar.' : /Password/i.test(m) ? 'Senha inválida (mínimo 6 caracteres).' : m;
+
+        window.onload = async () => {
+            const { data } = await sb.auth.getSession();
+            if (data.session) window.switchScreen('dashboard-screen');
         };
 
-        window.handleRegister = (event) => {
+        window.handleRegister = async (event) => {
             event.preventDefault();
             const email = document.getElementById('register-email').value;
             const password = document.getElementById('register-password').value;
             toggleLoading('btn-register', 'loader-register', true);
-            setTimeout(() => {
-                let users = JSON.parse(localStorage.getItem('econods_users')) || [];
-                if (users.some(user => user.email === email)) {
-                    window.showNotification("Este e-mail já está em uso.", true);
-                } else {
-                    users.push({ email, password });
-                    localStorage.setItem('econods_users', JSON.stringify(users));
-                    localStorage.setItem('econods_active_user', email);
-                    window.showNotification('Conta criada com sucesso!', false);
-                    document.getElementById('register-form').reset();
-                    window.switchScreen('dashboard-screen');
-                }
-                toggleLoading('btn-register', 'loader-register', false);
-            }, 1000); 
+            const { data, error } = await sb.auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin } });
+            if (error) window.showNotification(traduzErro(error.message), true);
+            else if (data.user && data.user.identities && data.user.identities.length === 0) window.showNotification('Este e-mail já está em uso.', true);
+            else {
+                document.getElementById('register-form').reset();
+                if (data.session) { window.showNotification('Conta criada com sucesso!', false); window.switchScreen('dashboard-screen'); }
+                else { window.showNotification('Conta criada! Verifique seu e-mail para confirmar.', false); window.switchScreen('login-screen'); }
+            }
+            toggleLoading('btn-register', 'loader-register', false);
         };
 
-        window.handleLogin = (event) => {
+        window.handleLogin = async (event) => {
             event.preventDefault();
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
             toggleLoading('btn-login', 'loader-login', true);
-            setTimeout(() => {
-                let users = JSON.parse(localStorage.getItem('econods_users')) || [];
-                const validUser = users.find(user => user.email === email && user.password === password);
-                if (validUser) {
-                    localStorage.setItem('econods_active_user', email);
-                    window.showNotification('Login realizado com sucesso!', false);
-                    document.getElementById('login-form').reset();
-                    window.switchScreen('dashboard-screen');
-                } else {
-                    window.showNotification('E-mail ou senha incorretos.', true);
-                }
-                toggleLoading('btn-login', 'loader-login', false);
-            }, 1000);
+            const { error } = await sb.auth.signInWithPassword({ email, password });
+            if (error) window.showNotification(traduzErro(error.message), true);
+            else { window.showNotification('Login realizado com sucesso!', false); document.getElementById('login-form').reset(); window.switchScreen('dashboard-screen'); }
+            toggleLoading('btn-login', 'loader-login', false);
         };
 
-        window.handleLogout = () => {
-            localStorage.removeItem('econods_active_user');
+        window.handleLogout = async () => {
+            await sb.auth.signOut();
             window.showNotification('Você saiu da conta.', false);
             window.switchScreen('login-screen');
         };
